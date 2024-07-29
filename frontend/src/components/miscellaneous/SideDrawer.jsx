@@ -20,7 +20,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { FaBell, FaChevronDown, FaSearch } from "react-icons/fa";
+import { FaChevronDown, FaSearch } from "react-icons/fa";
 import { ChatState } from "../../Context/ChatProvider";
 import ProfileModel from "./ProfileModel";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +28,8 @@ import axios from "axios";
 import ChatLoading from "../../components/ChatLoading";
 import UserListItem from "../../components/UserAvatar/UserListItem";
 import getSender from "../../config/ChatLogics";
-import NotificationBadge, { Effect } from "react-notification-badge";
+import NotificationComponent from '../NotificationComponent'
+
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
@@ -145,13 +146,8 @@ const SideDrawer = () => {
         <div>
           <Menu>
             <MenuButton p={2}>
-              <Box position="relative">
-                <NotificationBadge
-                  style={{ position: "absolute", fontSize: "10px", top: -10 }}
-                  count={notification.length}
-                  effect={Effect.SCALE}
-                />
-                <FaBell style={{ fontSize: "16px", margin: "1px" }} />
+              <Box >
+                <NotificationComponent notificationCount={notification.length} />
               </Box>
             </MenuButton>
             <MenuList pl={2}>
