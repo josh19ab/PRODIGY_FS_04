@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
-import { Box, Button, Stack, Text, Toast } from "@chakra-ui/react";
+import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import ChatLoading from "./ChatLoading";
 import getSender from "../config/ChatLogics";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 
-const MyChats = () => {
+// eslint-disable-next-line react/prop-types
+const MyChats = ({ fetchAgain }) => {
+
+  const Toast = useToast();
+
   const [loggedUser, setLoggedUser] = useState();
 
   const user = ChatState();
   const { selectedChat, setChats, chats, setSelectedChat } = ChatState();
 
+
   const fetchChats = async () => {
-    // console.log(user._id);
+
     try {
       const config = {
         headers: {
@@ -39,10 +44,10 @@ const MyChats = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   return (
     <Box
@@ -103,6 +108,7 @@ const MyChats = () => {
                   {!chat.isGroupChat
                     ? getSender(loggedUser, chat.users)
                     : chat.chatName}
+                    
                 </Text>
                 {/* {chat.latestMessage && (
                   <Text fontSize="xs">

@@ -15,7 +15,7 @@ import {
   MenuList,
   Spinner,
   Text,
-  Toast,
+  useToast,
   Tooltip,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -27,6 +27,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ChatLoading from "../../components/ChatLoading";
 import UserListItem from "../../components/UserAvatar/UserListItem";
+import getSender from "../../config/ChatLogics";
+import NotificationBadge, { Effect } from "react-notification-badge";
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
@@ -34,7 +36,10 @@ const SideDrawer = () => {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
 
-  const { setSelectedChat, chats, setChats } = ChatState();
+  const Toast = useToast();
+
+  const { setSelectedChat, chats, setChats, notification, setNotification } =
+    ChatState();
 
   const user = ChatState();
 
@@ -139,10 +144,32 @@ const SideDrawer = () => {
         </Text>
         <div>
           <Menu>
-            <MenuButton p="1">
-              <FaBell fontSize="2xl" m="1" />
+            <MenuButton p={2}>
+              <Box position="relative">
+                <NotificationBadge
+                  style={{ position: "absolute", fontSize: "10px", top: -10 }}
+                  count={notification.length}
+                  effect={Effect.SCALE}
+                />
+                <FaBell style={{  fontSize:"16px", margin:'1px' }}/>
+              </Box>
             </MenuButton>
-            {/* <MenuList></MenuList> */}
+            <MenuList pl={2}>
+              {!notification.length && "No new messages"}
+              {notification.map((notif) => (
+                <MenuItem
+                  key={notif._id}
+                  onClick={() => {
+                    setSelectedChat(notif.chat);
+                    setNotification(notification.filter((n) => n !== notif));
+                  }}
+                >
+                  {notif.chat.isGroupChat
+                    ? `New Message ${notif.chat.chatName}`
+                    : `New Message from ${getSender(user, notif.chat.users)}`}
+                </MenuItem>
+              ))}
+            </MenuList>
           </Menu>
           <Menu>
             <MenuButton as={Button} rightIcon={<FaChevronDown />}>
@@ -154,7 +181,7 @@ const SideDrawer = () => {
               />
             </MenuButton>
             <MenuList>
-              <ProfileModel user={user}>
+              <ProfileModel user={user.user}>
                 <MenuItem>My Profile</MenuItem>
               </ProfileModel>
               <MenuDivider />

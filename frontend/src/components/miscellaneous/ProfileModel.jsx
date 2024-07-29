@@ -17,7 +17,7 @@ import { FaEye } from "react-icons/fa";
 // eslint-disable-next-line react/prop-types
 const ProfileModel = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  
+
   return (
     <>
       {children ? (
@@ -34,7 +34,7 @@ const ProfileModel = ({ user, children }) => {
             display="flex"
             justifyContent="center"
           >
-            {user.user.name}
+            {user.name}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody
@@ -46,14 +46,14 @@ const ProfileModel = ({ user, children }) => {
             <Image
               borderRadius="full"
               boxSize="150px"
-              src={user.user.pic}
-              alt={user.user.name}
+              src={user.pic}
+              alt={user.name}
             />
             <Text
               fontSize={{ base: "28px", md: "30px" }}
               fontFamily="Work sans"
             >
-              Email: {user.user.email}
+              Email: {user.email}
             </Text>
           </ModalBody>
           <ModalFooter>
