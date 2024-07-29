@@ -15,7 +15,12 @@ const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
 
   const user = ChatState();
-  const { selectedChat, setChats, chats, setSelectedChat } = ChatState();
+  const {
+    selectedChat,
+    setChats,
+    chats,
+    setSelectedChat,
+  } = ChatState();
 
 
   const fetchChats = async () => {
@@ -110,14 +115,14 @@ const MyChats = ({ fetchAgain }) => {
                     : chat.chatName}
                     
                 </Text>
-                {/* {chat.latestMessage && (
+                {chat.latestMessage && (
                   <Text fontSize="xs">
                     <b>{chat.latestMessage.sender.name} : </b>
                     {chat.latestMessage.content.length > 50
                       ? chat.latestMessage.content.substring(0, 51) + "..."
                       : chat.latestMessage.content}
                   </Text>
-                )} */}
+                )}
               </Box>
             ))}
           </Stack>

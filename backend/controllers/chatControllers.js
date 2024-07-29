@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Chat = require("../models/chatModel");
 const User = require("../models/userModel");
+const Notification = require("../models/notificationModel");
 
 //@description     Create One one chat
 //@route           POST /api/chat
@@ -47,6 +48,21 @@ const accessChat = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error(error.message);
     }
+  }
+});
+
+
+//@description     Fetch all notifications
+//@route           GET /api/chat
+const fetchNotifications = asyncHandler(async (req, res) => {
+  try {
+    const notifications = await Notification.find({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json(notifications);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
   }
 });
 
@@ -188,4 +204,5 @@ module.exports = {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  fetchNotifications,
 };

@@ -151,7 +151,7 @@ const SideDrawer = () => {
                   count={notification.length}
                   effect={Effect.SCALE}
                 />
-                <FaBell style={{  fontSize:"16px", margin:'1px' }}/>
+                <FaBell style={{ fontSize: "16px", margin: "1px" }} />
               </Box>
             </MenuButton>
             <MenuList pl={2}>
