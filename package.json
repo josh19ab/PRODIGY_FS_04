@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "server": "nodemon backend/server.js",
-    "build": "npm install --legacy-peer-deps && npm install --legacy-peer-deps --prefix frontend && vite build --prefix frontend"
+    "build": "npm install --legacy-peer-deps && cd frontend && npm install --legacy-peer-deps && npm run build"
   },
   "author": "Joshua",
   "license": "ISC",
