@@ -50,7 +50,7 @@ const server = require("http").createServer(app);
 const io = new Server({
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://chat-app-jo.vercel.app",
   },
 });
 
