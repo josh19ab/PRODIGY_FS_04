@@ -9,22 +9,14 @@ import GroupChatModal from "./miscellaneous/GroupChatModal";
 
 // eslint-disable-next-line react/prop-types
 const MyChats = ({ fetchAgain }) => {
-
   const Toast = useToast();
 
   const [loggedUser, setLoggedUser] = useState();
 
   const user = ChatState();
-  const {
-    selectedChat,
-    setChats,
-    chats,
-    setSelectedChat,
-  } = ChatState();
-
+  const { selectedChat, setChats, chats, setSelectedChat } = ChatState();
 
   const fetchChats = async () => {
-
     try {
       const config = {
         headers: {
@@ -49,9 +41,10 @@ const MyChats = ({ fetchAgain }) => {
     }
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
+    // eslint-disable-next-line
   }, [fetchAgain]);
 
   return (
@@ -110,10 +103,11 @@ const MyChats = ({ fetchAgain }) => {
                 key={chat._id}
               >
                 <Text>
-                  {!chat.isGroupChat
+                  {!chat || !chat.users || !loggedUser
+                    ? "Loading..." // or any fallback UI
+                    : !chat.isGroupChat
                     ? getSender(loggedUser, chat.users)
                     : chat.chatName}
-                    
                 </Text>
                 {chat.latestMessage && (
                   <Text fontSize="xs">

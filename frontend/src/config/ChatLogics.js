@@ -1,11 +1,13 @@
 const getSender = (loggedUser, users) => {
+  if (!loggedUser || !users || users.length < 2) {
+    return "Unknown User"; // Fallback for undefined or insufficient users
+  }
   return users[0]._id === loggedUser._id ? users[1].name : users[0].name;
 };
-
 export const getSenderFull = (loggedUser, users) => {
   const user = users[0]._id === loggedUser._id ? users[1] : users[0];
   return user;
-}
+};
 
 export const isSameSender = (messages, m, i, userId) => {
   return (
@@ -25,7 +27,6 @@ export const isLastMessage = (messages, i, userId) => {
 };
 
 export const isSameSenderMargin = (messages, m, i, userId) => {
- 
   if (
     i < messages.length - 1 &&
     messages[i + 1].sender._id === m.sender._id &&
@@ -41,8 +42,6 @@ export const isSameSenderMargin = (messages, m, i, userId) => {
     return 0;
   else return "auto";
 };
-
-
 
 export const isSameUser = (messages, m, i) => {
   return i > 0 && messages[i - 1].sender._id === m.sender._id;

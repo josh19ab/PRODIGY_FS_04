@@ -131,7 +131,7 @@ const SideDrawer = () => {
         w="100%"
         p="5px 10px 5px 10px"
         borderWidth="5px"
-      >
+        >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button variant="ghost" onClick={onOpen}>
             <FaSearch />
@@ -140,13 +140,13 @@ const SideDrawer = () => {
             </Text>
           </Button>
         </Tooltip>
-        <Text fontSize="2xl" fontFamily="Work sans">
+        <Text fontSize="22px" fontFamily="Work sans">
           Chat-app
         </Text>
         <div>
           <Menu>
             <MenuButton p={2}>
-              <Box >
+              <Box>
                 <NotificationComponent notificationCount={notification.length} />
               </Box>
             </MenuButton>
