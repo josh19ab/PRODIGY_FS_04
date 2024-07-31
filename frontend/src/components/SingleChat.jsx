@@ -22,7 +22,7 @@ import animationData from "../animations/typing.json";
 
 const ENDPOINT = `${import.meta.env.VITE_API_URL}`;
 
-var socket, selectedChatCompare;
+var socket;
 
 // eslint-disable-next-line react/prop-types
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -71,7 +71,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Error Occurred!",
         description: "Failed to Load the Messages",
         status: "error",
         duration: 5000,
@@ -91,7 +91,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             Authorization: `Bearer ${user.user.token}`,
           },
         };
-        setNewMessage("");
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_URL}/api/message`,
           {
@@ -102,10 +101,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         );
 
         socket.emit("new message", data);
-        setMessages([...messages, data]);
+        setMessages((prevMessages) => [...prevMessages, data]);
+        setNewMessage(""); // Clear input after sending
       } catch (error) {
         toast({
-          title: "Error Occured!",
+          title: "Error Occurred!",
           description: "Failed to send the Message",
           status: "error",
           duration: 5000,
@@ -118,40 +118,42 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket = io(ENDPOINT);
-    socket.on("connect_error", (err) => {
-      console.error("Connection Error:", err);
-    });
     socket.emit("setup", user.user);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
 
+    // Clean up the socket connection on unmount
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, []); // Empty dependency array to run only once
 
   useEffect(() => {
     fetchMessages();
-    selectedChatCompare = selectedChat;
     // eslint-disable-next-line
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
+    socket.on("message received", (newMessageReceived) => {
       if (
-        !selectedChatCompare || // if chat is not selected or doesn't match current chat
-        selectedChatCompare._id !== newMessageRecieved.chat._id
+        !selectedChat || // if chat is not selected or doesn't match current chat
+        selectedChat._id !== newMessageReceived.chat._id
       ) {
-        if (!notification.includes(newMessageRecieved)) {
-          setNotification([newMessageRecieved, ...notification]);
+        if (!notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...notification]);
           setFetchAgain(!fetchAgain);
         }
       } else {
-        setMessages([...messages, newMessageRecieved]);
+        setMessages((prevMessages) => [...prevMessages, newMessageReceived]); // Use functional update
       }
     });
-  });
+
+    // Cleanup listener on unmount
+    return () => {
+      socket.off("message received");
+    };
+  }, [selectedChat, notification, fetchAgain]); // Add dependencies to avoid stale closures
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
@@ -245,7 +247,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <div>
                   <Lottie
                     options={defaultOptions}
-                    // height={50}
                     width={70}
                     style={{ marginBottom: 15, marginLeft: 0 }}
                   />
