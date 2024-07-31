@@ -92,6 +92,9 @@ app.get("/", (req, res) => {
   res.send("API is running successfully");
 });
 
+app.use((req, res) => {
+  res.status(404).send("Not Found");
+});
 
 
 app.get("/api/chat/:id", (req, res) => {
