@@ -50,7 +50,7 @@ const server = require("http").createServer(app);
 const io = new Server({
   pingTimeout: 60000,
   cors: {
-    origin: "*",
+    origin: ["*", "http://localhost:3000"],
   },
 });
 
