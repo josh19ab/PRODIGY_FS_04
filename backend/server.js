@@ -27,7 +27,6 @@ app.use("/api/message", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 // --------------------------deployment------------------------------
-
 // const __dirname1 = path.resolve();
 
 // if (process.env.NODE_ENV === "production") {
@@ -41,7 +40,6 @@ app.use("/api/notifications", notificationRoutes);
 //     res.send("API is running..");
 //   });
 // }
-
 // --------------------------deployment------------------------------ 
 
 
@@ -94,9 +92,7 @@ app.get("/", (req, res) => {
   res.send("API is running successfully");
 });
 
-// app.get("/api/chat", (req, res) => {
-//   res.send(chats);
-// });
+
 
 app.get("/api/chat/:id", (req, res) => {
   // console.log(req.params.id);
