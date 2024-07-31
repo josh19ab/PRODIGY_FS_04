@@ -19,7 +19,16 @@ connectDB();
 const app = express();
 app.use(express.json()); //to accept JSON data
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://chat-app-frontend-eta-red.vercel.app",
+      "http://localhost:5000",
+    ], // Your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // If you need to allow credentials
+  })
+);
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
@@ -50,7 +59,7 @@ const io = new Server({
   cors: {
     origin: [
       "*",
-      "http://localhost:3000",
+      "http://localhost:5000",
       "https://chat-app-jo-frontend.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],

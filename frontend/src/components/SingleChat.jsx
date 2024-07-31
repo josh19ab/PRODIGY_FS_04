@@ -1,5 +1,5 @@
 import "./styles.css";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import {
   Box,
@@ -17,7 +17,7 @@ import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import axios from "axios";
 import SrollableChat from "./SrollableChat";
 import io from "socket.io-client";
-import Lottie from 'react-lottie'
+import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 
 const ENDPOINT = `${import.meta.env.VITE_API_URL}`;
@@ -103,7 +103,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
         socket.emit("new message", data);
         setMessages([...messages, data]);
-       
       } catch (error) {
         toast({
           title: "Error Occured!",
@@ -119,10 +118,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket = io(ENDPOINT);
+    socket.on("connect_error", (err) => {
+      console.error("Connection Error:", err);
+    });
     socket.emit("setup", user.user);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -131,21 +137,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     // eslint-disable-next-line
   }, [selectedChat]);
 
-useEffect(() => {
-  socket.on("message recieved", (newMessageRecieved) => {
-    if (
-      !selectedChatCompare || // if chat is not selected or doesn't match current chat
-      selectedChatCompare._id !== newMessageRecieved.chat._id
-    ) {
-      if (!notification.includes(newMessageRecieved)) {
-        setNotification([newMessageRecieved, ...notification]);
-        setFetchAgain(!fetchAgain);
+  useEffect(() => {
+    socket.on("message recieved", (newMessageRecieved) => {
+      if (
+        !selectedChatCompare || // if chat is not selected or doesn't match current chat
+        selectedChatCompare._id !== newMessageRecieved.chat._id
+      ) {
+        if (!notification.includes(newMessageRecieved)) {
+          setNotification([newMessageRecieved, ...notification]);
+          setFetchAgain(!fetchAgain);
+        }
+      } else {
+        setMessages([...messages, newMessageRecieved]);
       }
-    } else {
-      setMessages([...messages, newMessageRecieved]);
-    }
+    });
   });
-},);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
@@ -167,7 +173,6 @@ useEffect(() => {
       }
     }, timerLength);
   };
-
 
   return (
     <>
