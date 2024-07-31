@@ -22,7 +22,7 @@ app.use(express.json()); //to accept JSON data
 app.use(
   cors({
     origin: [
-      "https://chat-app-frontend.vercel.app",
+      "https://chat-app-jo-frontend.vercel.app",
       "http://localhost:5000",
       "*",
     ],
