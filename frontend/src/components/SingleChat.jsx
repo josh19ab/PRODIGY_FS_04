@@ -1,5 +1,5 @@
 import "./styles.css";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import {
   Box,
@@ -20,7 +20,7 @@ import io from "socket.io-client";
 import Lottie from 'react-lottie'
 import animationData from "../animations/typing.json";
 
-const ENDPOINT = "https://chat-app-jo.vercel.app";
+const ENDPOINT = `${import.meta.env.VITE_API_URL}`;
 
 var socket, selectedChatCompare;
 

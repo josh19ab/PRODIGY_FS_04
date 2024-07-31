@@ -5,12 +5,13 @@
   "scripts": {
     "start": "node backend/server.js",
     "server": "nodemon backend/server.js",
-    "build": "npm install --legacy-peer-deps --prefix frontend && npm run build --prefix frontend"
+    "build": "npm install build"
   },
   "author": "Joshua",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@emotion/react": "^11.13.0",
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
     "cors": "^2.8.5",

@@ -17,7 +17,7 @@ export default defineConfig({
     open: true,
     proxy: {
       "/api": {
-        target: "https://chat-app-jo.vercel.app",
+        target: "http://localhost:3000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },

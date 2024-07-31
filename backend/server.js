@@ -10,7 +10,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const { Server } = require("socket.io");
-const path = require('path')
+// const path = require('path')
 
 dotenv.config();
 
@@ -28,19 +28,19 @@ app.use("/api/notifications", notificationRoutes);
 
 // --------------------------deployment------------------------------
 
-const __dirname1 = path.resolve();
+// const __dirname1 = path.resolve();
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname1, "/frontend/dist")));
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname1, "/frontend/dist")));
 
-  app.get("*", (req, res) =>
-    res.sendFile(path.resolve(__dirname1, "frontend", "dist", "index.html"))
-  );
-} else {
-  app.get("/", (req, res) => {
-    res.send("API is running..");
-  });
-}
+//   app.get("*", (req, res) =>
+//     res.sendFile(path.resolve(__dirname1, "frontend", "dist", "index.html"))
+//   );
+// } else {
+//   app.get("/", (req, res) => {
+//     res.send("API is running..");
+//   });
+// }
 
 // --------------------------deployment------------------------------ 
 
@@ -50,7 +50,7 @@ const server = require("http").createServer(app);
 const io = new Server({
   pingTimeout: 60000,
   cors: {
-    origin: "https://chat-app-jo.vercel.app",
+    origin: "*",
   },
 });
 
@@ -108,6 +108,6 @@ app.get("/api/chat/:id", (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, console.log(`Server started on port ${PORT}`.yellow.bold));
