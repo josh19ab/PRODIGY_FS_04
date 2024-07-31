@@ -51,8 +51,10 @@ const io = new Server({
     origin: [
       "*",
       "http://localhost:3000",
-      "https://chat-app-frontend-eta-red.vercel.app",
+      "https://chat-app-jo-frontend.vercel.app",
     ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   },
 });
 
