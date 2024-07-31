@@ -9,7 +9,7 @@ const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
-const { Server } = require("socket.io");
+const socket = require("socket.io");
 // const path = require('path')
 
 dotenv.config();
@@ -22,11 +22,12 @@ app.use(express.json()); //to accept JSON data
 app.use(
   cors({
     origin: [
-      "https://chat-app-frontend-eta-red.vercel.app",
+      "https://chat-app-frontend.vercel.app",
       "http://localhost:5000",
-    ], // Your frontend URL
+      "*",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // If you need to allow credentials
+    credentials: true,
   })
 );
 
@@ -34,6 +35,9 @@ app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+const PORT = process.env.PORT || 3000;
+
 
 // --------------------------deployment------------------------------
 // const __dirname1 = path.resolve();
@@ -49,12 +53,16 @@ app.use("/api/notifications", notificationRoutes);
 //     res.send("API is running..");
 //   });
 // }
-// --------------------------deployment------------------------------ 
+// --------------------------deployment------------------------------
 
+// const server = require("http").createServer(app);
 
-const server = require("http").createServer(app);
+const server = app.listen(
+  PORT,
+  console.log(`Server started on port ${PORT}`.yellow.bold)
+);
 
-const io = new Server({
+const io = socket(server, {
   pingTimeout: 60000,
   cors: {
     origin: [
@@ -62,8 +70,6 @@ const io = new Server({
       "http://localhost:5000",
       "https://chat-app-jo-frontend.vercel.app",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
   },
 });
 
@@ -111,17 +117,12 @@ app.use((req, res) => {
   res.status(404).send("Not Found");
 });
 
-
 app.get("/api/chat/:id", (req, res) => {
   // console.log(req.params.id);
   const singleChat = chats.find((c) => c._id === req.params.id);
   res.send(singleChat);
 });
 
-
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, console.log(`Server started on port ${PORT}`.yellow.bold));
