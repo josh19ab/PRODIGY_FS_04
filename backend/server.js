@@ -48,7 +48,11 @@ const server = require("http").createServer(app);
 const io = new Server({
   pingTimeout: 60000,
   cors: {
-    origin: ["*", "http://localhost:3000"],
+    origin: [
+      "*",
+      "http://localhost:3000",
+      "https://chat-app-frontend-eta-red.vercel.app",
+    ],
   },
 });
 
