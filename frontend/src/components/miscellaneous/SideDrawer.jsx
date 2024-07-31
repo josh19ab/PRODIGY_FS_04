@@ -28,7 +28,7 @@ import axios from "axios";
 import ChatLoading from "../../components/ChatLoading";
 import UserListItem from "../../components/UserAvatar/UserListItem";
 import getSender from "../../config/ChatLogics";
-import NotificationComponent from '../NotificationComponent'
+import NotificationButton from "../NotificationButton";
 
 
 const SideDrawer = () => {
@@ -147,7 +147,7 @@ const SideDrawer = () => {
           <Menu>
             <MenuButton p={2}>
               <Box>
-                <NotificationComponent notificationCount={notification.length} />
+                <NotificationButton notificationCount={notification.length} />
               </Box>
             </MenuButton>
             <MenuList pl={2}>

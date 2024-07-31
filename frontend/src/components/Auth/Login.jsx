@@ -3,10 +3,10 @@ import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { VStack } from "@chakra-ui/layout";
 import { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaRegEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -90,7 +90,7 @@ const Login = () => {
           />
           <InputRightElement width="4.5rem">
             <Button h="1.75rem" size="sm" onClick={handleClick}>
-              {show ? <FaEye /> : <FaEyeSlash />}
+              {show ? <FaEye /> : <FaRegEyeSlash />}
             </Button>
           </InputRightElement>
         </InputGroup>

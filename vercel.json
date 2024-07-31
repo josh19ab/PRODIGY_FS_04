@@ -2,32 +2,26 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
+      "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "frontend/dist", 
-        "buildCommand": "npm install --legacy-peer-deps && npm install --legacy-peer-deps --prefix frontend && npm run build --prefix frontend" 
+        "buildCommand": "npm install --legacy-peer-deps --prefix frontend && npm run build --prefix frontend"
       }
     },
     {
-      "src": "backend/server.js", 
+      "src": "backend/server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)", 
+      "src": "/api/(.*)",
       "dest": "backend/server.js"
     },
     {
-      "src": "/(.*)", 
+      "src": "/(.*)",
       "dest": "frontend/dist/$1"
     }
-  ],
-  "env": {
-    "PORT":"5000",
-    "MONGO_URI":"mongodb+srv://josh19ab:4bVFNqOwuQsnZ6EL@data.8u56bj5.mongodb.net/?retryWrites=true&w=majority&appName=Data",
-    "JWT_SECRET":"josh123",
-    "NODE_ENV": "production"
-  }
+  ]
 }
