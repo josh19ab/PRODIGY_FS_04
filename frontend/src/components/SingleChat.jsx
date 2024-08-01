@@ -117,21 +117,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket = io("https://chat-app-jo-backend.vercel.app", {
       withCredentials: true,
-      // transports: ["websocket"],
+      transports: ["websocket"],
     });
     socket.on("connect", () => {
       console.log("Connected to Socket.IO server");
     });
-    socket.emit("setup", user.user);
-    socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
+    // socket.emit("setup", user.user);
+    // socket.on("connected", () => setSocketConnected(true));
+    // socket.on("typing", () => setIsTyping(true));
+    // socket.on("stop typing", () => setIsTyping(false));
+    
+    socket.on("connect_error", (err) => {
+      console.error("Socket.IO connect_error:", err);
+    });
 
     // Clean up the socket connection on unmount
     return () => {
       socket.disconnect();
     };
-  }, [user.user]);
+  }, []);
 
   useEffect(() => {
     fetchMessages();
