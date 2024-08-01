@@ -99,8 +99,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         );
 
         socket.emit("new message", data);
-        setMessages((prevMessages) => [...prevMessages, data]);
-        setNewMessage(""); // Clear input after sending
+        setMessages([...messages, data]);
       } catch (error) {
         toast({
           title: "Error Occurred!",
@@ -115,23 +114,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io("https://chat-app-jo-backend.vercel.app", {
+    socket = io(import.meta.env.VITE_API_URL, {
       withCredentials: true,
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
     });
     socket.on("connect", () => {
       console.log("Connected to Socket.IO server");
     });
-    // socket.emit("setup", user.user);
-    // socket.on("connected", () => setSocketConnected(true));
-    // socket.on("typing", () => setIsTyping(true));
-    // socket.on("stop typing", () => setIsTyping(false));
+    socket.emit("setup", user.user);
+    socket.on("connected", () => setSocketConnected(true));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
     
     socket.on("connect_error", (err) => {
       console.error("Socket.IO connect_error:", err);
     });
 
-    // Clean up the socket connection on unmount
     return () => {
       socket.disconnect();
     };
@@ -153,11 +151,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           setFetchAgain(!fetchAgain);
         }
       } else {
-        setMessages((prevMessages) => [...prevMessages, newMessageReceived]); 
+         setMessages([...messages, newMessageReceived]);
       }
     });
-
-    // Cleanup listener on unmount
     return () => {
       socket.off("message received");
     };
@@ -165,9 +161,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
-
     if (!socketConnected) return;
-
     if (!typing) {
       setTyping(true);
       socket.emit("typing", selectedChat._id);

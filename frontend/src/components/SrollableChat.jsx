@@ -3,6 +3,7 @@ import ScrollableFeed from "react-scrollable-feed";
 import { ChatState } from "../Context/ChatProvider";
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../config/ChatLogics";
 
+// eslint-disable-next-line react/prop-types
 const SrollableChat = ({ messages }) => {
 
   const user = ChatState();

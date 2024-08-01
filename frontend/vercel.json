@@ -12,15 +12,15 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://chat-app-jo-backend.vercel.app/api/$1"
+      "dest": "https://prodigy-fs-04-92ck.onrender.com/api/$1"
     },
     {
       "src": "/socket.io/(.*)",
-      "dest": "https://chat-app-jo-backend.vercel.app/socket.io/$1"
+      "dest": "https://prodigy-fs-04-92ck.onrender.com/socket.io/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/index.html"
     }
   ]
 }

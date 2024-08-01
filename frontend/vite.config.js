@@ -16,8 +16,13 @@ export default defineConfig({
     port: 5000,
     open: true,
     proxy: {
+      "/socket.io": {
+        target: "https://prodigy-fs-04-92ck.onrender.com",
+        ws: true,
+        changeOrigin: true,
+      },
       "/api": {
-        target: "https://chat-app-jo-backend.vercel.app",
+        target: "https://prodigy-fs-04-92ck.onrender.com",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
