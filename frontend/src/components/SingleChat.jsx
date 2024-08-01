@@ -117,7 +117,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io(ENDPOINT);
+    socket = io(ENDPOINT, {
+      withCredentials: true,
+    });
     socket.emit("setup", user.user);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
@@ -137,7 +139,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
       if (
-        !selectedChat || // if chat is not selected or doesn't match current chat
+        !selectedChat || 
         selectedChat._id !== newMessageReceived.chat._id
       ) {
         if (!notification.includes(newMessageReceived)) {
@@ -145,7 +147,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           setFetchAgain(!fetchAgain);
         }
       } else {
-        setMessages((prevMessages) => [...prevMessages, newMessageReceived]); // Use functional update
+        setMessages((prevMessages) => [...prevMessages, newMessageReceived]); 
       }
     });
 

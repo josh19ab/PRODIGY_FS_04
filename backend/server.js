@@ -9,6 +9,7 @@ const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const router = express.Router();
 
 dotenv.config();
 connectDB();
@@ -19,14 +20,27 @@ app.use(express.json());
 
 const corsOptions = {
   origin: [
-    "https://chat-app-jo-frontend.vercel.app", // Your deployed frontend URL
-    "http://localhost:5000", // Your local development URL
+    "https://chat-app-jo-frontend.vercel.app",
+    "http://localhost:5000", 
   ],
-  methods: ["GET", "POST"],
-  credentials: true, // Enable to send cookies if needed
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
+
+
+router.get("/", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins or replace with specific origin
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Max-Age", "1800"); // Cache preflight response for 30 minutes
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "PUT, POST, GET, DELETE, PATCH, OPTIONS"
+  );
+  res.json({ message: "CORS headers added to this response" });
+});
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
