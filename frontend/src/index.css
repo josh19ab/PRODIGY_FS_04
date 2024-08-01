@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,300;1,300&display=swap');
 
-.App{
-    min-height: 100vh;
-    display: flex;
-    background-image: url('../public/background.jpg');
-    background-size: cover;
-    background-position: center;
-    color: black;
+.App {
+  min-height: 100vh;
+  display: flex;
+  background-image: url('./assets/background.jpg'); 
+  background-size: cover;
+  background-position: center;
+  color: black;
 }
 
 #error-page {
@@ -31,4 +31,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-
