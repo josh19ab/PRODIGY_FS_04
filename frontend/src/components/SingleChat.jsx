@@ -115,7 +115,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io("https://chat-app-jo-backend.vercel.app", {
+    socket = io("http://localhost:3000", {
       withCredentials: true,
       transports: ["websocket", "polling"],
     });

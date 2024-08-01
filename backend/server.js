@@ -31,10 +31,19 @@ app.use(
   })
 );
 
-router.get("/", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigins); 
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.json({ message: "CORS headers added to this response" });
+  res.setHeader("Access-Control-Max-Age", "1800");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "PUT, POST, GET, DELETE, PATCH, OPTIONS"
+  );
+  next();
 });
 
 app.use("/api/user", userRoutes);
