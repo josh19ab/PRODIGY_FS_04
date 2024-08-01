@@ -141,6 +141,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
+    socket.on("user status", (userStatus) => {
+      // Update your user presence state here
+      console.log(`${userStatus.userId} is now ${userStatus.status}`);
+    });
+
+    // Emit user online status when connecting
+    socket.emit("user online", user.user._id);
+  }, []);
+
+
+
+  useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
       if (
         !selectedChat || 

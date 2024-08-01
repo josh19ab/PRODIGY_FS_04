@@ -74,6 +74,22 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("user online", (userId) => {
+    onlineUsers[userId] = socket.id; 
+    io.emit("user status", { userId, status: "online" });
+  });
+
+  socket.on("disconnect", () => {
+    // Handle user disconnection
+    for (const userId in onlineUsers) {
+      if (onlineUsers[userId] === socket.id) {
+        delete onlineUsers[userId];
+        io.emit("user status", { userId, status: "offline" });
+        break;
+      }
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
