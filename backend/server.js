@@ -18,27 +18,22 @@ const app = express();
 const httpServer = createServer(app);
 app.use(express.json());
 
-const corsOptions = {
-  origin: [
-    "https://chat-app-jo-frontend.vercel.app",
-    "http://localhost:5000", 
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-};
 
-app.use(cors(corsOptions));
 
+app.use(
+  cors({
+    origin: [
+      "https://chat-app-jo-frontend.vercel.app", // Your frontend URL on Vercel
+      "http://localhost:5000", // Your local development URL
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 
 router.get("/", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins or replace with specific origin
+  res.setHeader("Access-Control-Allow-Origin", "https://chat-app-jo-frontend.vercel.app"); 
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Max-Age", "1800"); // Cache preflight response for 30 minutes
-  res.setHeader("Access-Control-Allow-Headers", "content-type");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "PUT, POST, GET, DELETE, PATCH, OPTIONS"
-  );
   res.json({ message: "CORS headers added to this response" });
 });
 
@@ -52,7 +47,14 @@ const PORT = process.env.PORT || 3000;
 
 // Initialize Socket.IO
 const io = new Server(httpServer, {
-  cors: corsOptions,
+  cors: {
+    origin: [
+      "https://chat-app-jo-frontend.vercel.app",
+      "http://localhost:5000",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 
 // Socket.IO connection handling
