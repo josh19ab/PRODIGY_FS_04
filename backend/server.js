@@ -4,6 +4,7 @@ const connectDB = require("./config/db");
 const colors = require("colors");
 const cors = require("cors");
 const { Server } = require("socket.io");
+const { createServer } = require("http");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
@@ -13,18 +14,19 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const httpServer = createServer(app);
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: [
-      "https://chat-app-jo-frontend.vercel.app",
-      "http://localhost:5000",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: [
+    "https://chat-app-jo-frontend.vercel.app", // Your deployed frontend URL
+    "http://localhost:5000", // Your local development URL
+  ],
+  methods: ["GET", "POST"],
+  credentials: true, // Enable to send cookies if needed
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
@@ -32,20 +34,11 @@ app.use("/api/message", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`.yellow.bold);
-});
+
 
 // Initialize Socket.IO
-const io = new Server(server, {
-  cors: {
-    origin: [
-      "https://chat-app-jo-frontend.vercel.app",
-      "http://localhost:5000",
-    ],
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
+const io = new Server(httpServer, {
+  cors: corsOptions,
 });
 
 // Socket.IO connection handling
@@ -88,4 +81,8 @@ app.get("/", (req, res) => {
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`.yellow.bold);
 });

@@ -16,11 +16,11 @@ import ProfileModal from "./miscellaneous/ProfileModel";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import axios from "axios";
 import SrollableChat from "./SrollableChat";
-import io from "socket.io-client";
+import { io } from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 
-const ENDPOINT = `${import.meta.env.VITE_API_URL}`;
+const ENDPOINT = "http://localhost:3000/";
 
 var socket;
 
@@ -127,7 +127,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     return () => {
       socket.disconnect();
     };
-  }, []); // Empty dependency array to run only once
+  }, []);
 
   useEffect(() => {
     fetchMessages();
@@ -153,7 +153,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     return () => {
       socket.off("message received");
     };
-  }, [selectedChat, notification, fetchAgain]); // Add dependencies to avoid stale closures
+  }); 
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
