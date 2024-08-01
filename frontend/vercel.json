@@ -19,16 +19,21 @@
       "dest": "https://prodigy-fs-04-92ck.onrender.com/socket.io/$1"
     },
     {
-      "src": "/static/(.*)", 
+      "src": "/static/(.*)",
       "dest": "/static/$1"
     },
     {
-      "src": "/(.*).js", 
+      "src": "/(.*).js",
       "headers": { "cache-control": "public,max-age=31536000,immutable" },
       "dest": "/$1.js"
     },
     {
-      "src": "/(.*)", 
+      "src": "/(.*).css",
+      "headers": { "cache-control": "public,max-age=31536000,immutable" },
+      "dest": "/$1.css"
+    },
+    {
+      "src": "/(.*)",
       "dest": "/index.html"
     }
   ]
