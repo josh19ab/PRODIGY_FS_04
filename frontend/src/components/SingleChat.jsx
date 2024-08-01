@@ -20,7 +20,7 @@ import { io } from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 
-
+var socket
 
 // eslint-disable-next-line react/prop-types
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -115,7 +115,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    const socket = io("https://chat-app-jo-backend.vercel.app", {
+    socket = io("https://chat-app-jo-backend.vercel.app", {
       withCredentials: true,
       transports: ["websocket", "polling"],
     });

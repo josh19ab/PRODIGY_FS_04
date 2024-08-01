@@ -11,6 +11,14 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "https://chat-app-jo-backend.vercel.app/api/$1"
+    },
+    {
+      "src": "/socket.io/(.*)",
+      "dest": "https://chat-app-jo-backend.vercel.app/socket.io/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }

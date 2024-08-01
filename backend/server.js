@@ -18,21 +18,21 @@ const app = express();
 const httpServer = createServer(app);
 app.use(express.json());
 
-
+const allowedOrigins = [
+  "https://chat-app-jo-frontend.vercel.app",
+  "http://localhost:5000",
+];
 
 app.use(
   cors({
-    origin: [
-      "https://chat-app-jo-frontend.vercel.app", // Your frontend URL on Vercel
-      "http://localhost:5000", // Your local development URL
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   })
 );
 
 router.get("/", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://chat-app-jo-frontend.vercel.app"); 
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigins); 
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.json({ message: "CORS headers added to this response" });
 });
@@ -48,10 +48,7 @@ const PORT = process.env.PORT || 3000;
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      "https://chat-app-jo-frontend.vercel.app",
-      "http://localhost:5000",
-    ],
+    origin:allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
