@@ -117,7 +117,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket = io("https://chat-app-jo-backend.vercel.app", {
       withCredentials: true,
-      transports: ["websocket", "polling"],
+      // transports: ["websocket"],
     });
     socket.on("connect", () => {
       console.log("Connected to Socket.IO server");
@@ -131,7 +131,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [user.user]);
 
   useEffect(() => {
     fetchMessages();
