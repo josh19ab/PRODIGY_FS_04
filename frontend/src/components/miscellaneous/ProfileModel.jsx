@@ -25,7 +25,7 @@ const ProfileModel = ({ user, children }) => {
       ) : (
         <IconButton display={{ base: "flex" }} icon={<FaEye />} onClick={onOpen} />
       )}
-      <Modal size="lg" onClose={onClose} isOpen={isOpen} isCentered>
+      <Modal size="lg" onClose={onClose} isOpen={isOpen} isCentered >
         <ModalOverlay />
         <ModalContent h="410px">
           <ModalHeader

@@ -127,10 +127,14 @@ const SideDrawer = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        bg="white"
-        w="100%"
-        p="5px 10px 5px 10px"
-        borderWidth="5px"
+        bg="rgba(178, 245, 234, 0.5)"
+        backdropFilter="blur(10px)"
+        boxShadow="lg"
+        px={3}
+        borderRadius="lg"
+        margin={2}
+        zIndex={10}
+        position="relative"
         >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button variant="ghost" onClick={onOpen}>
@@ -150,7 +154,7 @@ const SideDrawer = () => {
                 <NotificationButton notificationCount={notification.length} />
               </Box>
             </MenuButton>
-            <MenuList pl={2}>
+            <MenuList pl={2} mt={-4} mr={5}>
               {!notification.length && "No new messages"}
               {notification.map((notif) => (
                 <MenuItem
@@ -168,7 +172,11 @@ const SideDrawer = () => {
             </MenuList>
           </Menu>
           <Menu>
-            <MenuButton as={Button} rightIcon={<FaChevronDown />}>
+            <MenuButton
+              as={Button}
+              rightIcon={<FaChevronDown />}
+              bg="transparent"
+            >
               <Avatar
                 size="sm"
                 cursor="pointer"

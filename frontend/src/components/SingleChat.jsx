@@ -268,7 +268,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             flexDir="column"
             justifyContent="flex-end"
             p={3}
-            bg="#E8E8E8"
+            bg="transparent"
+            // backdropFilter="blur(10px)"
+            // boxShadow="lg"
             w="100%"
             h="100%"
             borderRadius="lg"
@@ -327,7 +329,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   <Picker
                     data={data}
                     onEmojiSelect={addEmoji}
-                    previewPosition='none'
+                    previewPosition="none"
                   />
                 </Box>
               )}
@@ -340,8 +342,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           alignItems="center"
           justifyContent="center"
           h="100%"
+          
         >
-          <Text fontSize="3xl" pb={3} fontFamily="Work sans">
+          <Text fontSize="3xl" pb={3} fontFamily="Work sans" fontWeight='md'>
             Click on a user to start chatting
           </Text>
         </Box>

@@ -30,17 +30,25 @@ const HomePage = () => {
         display="flex"
         justifyContent="center"
         p={3}
-        bg="white"
+        bg="rgba(178, 245, 234, 0.5)"
+        backdropFilter="blur(10px)"
+        boxShadow="lg"
         w="100%"
         m="40px 0 15px 0"
         borderRadius="lg"
-        borderWidth="1px"
       >
         <Text fontSize="4xl" fontFamily="Work sans" textAlign="center">
           Chat-app
         </Text>
       </Box>
-      <Box bg="white" w="100%" p={4} borderRadius="lg" borderWidth="1px">
+      <Box
+        bg="rgba(178, 245, 234, 0.5)"
+        backdropFilter="blur(10px)"
+        boxShadow="lg"
+        w="100%"
+        p={4}
+        borderRadius="lg"
+      >
         <Tabs isFitted variant="soft-rounded">
           <TabList mb="1em">
             <Tab>Login</Tab>
