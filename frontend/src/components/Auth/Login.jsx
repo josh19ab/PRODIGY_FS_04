@@ -7,6 +7,7 @@ import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaRegEyeSlash } from "react-icons/fa";
+// import { io } from "socket.io-client";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -52,7 +53,17 @@ const Login = () => {
         isClosable: true,
         position: "bottom",
       });
+
+
       localStorage.setItem("userInfo", JSON.stringify(data));
+
+      // const socket = io(import.meta.env.VITE_API_URL, {
+      //   withCredentials: true,
+      //   transports: ["websocket", "polling"],
+      // });
+
+      // socket.emit("user online", data._id);
+
       setLoading(false);
       navigate("/chats");
     } catch (error) {

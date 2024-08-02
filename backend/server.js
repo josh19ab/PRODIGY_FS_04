@@ -45,7 +45,7 @@ const io = new Server(httpServer, {
   transports: ["websocket", "polling"],
 });
 
-const onlineUsers = {}; 
+const onlineUsers = {};
 // Socket.IO connection handling
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
@@ -76,22 +76,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("user online", (userId) => {
-    onlineUsers[userId] = socket.id; 
+    socket.userId = userId;
+    onlineUsers[userId] = socket.id;
+    socket.emit("online users", Object.keys(onlineUsers));
+    socket.broadcast.emit("user status", { userId, status: "online" });
     io.emit("user status", { userId, status: "online" });
   });
 
   socket.on("disconnect", () => {
-    for (const userId in onlineUsers) {
-      if (onlineUsers[userId] === socket.id) {
-        delete onlineUsers[userId];
-        io.emit("user status", { userId, status: "offline" });
-        break;
-      }
-    }
-  });
+    const userId = socket.userId;
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
+    if (userId && onlineUsers[userId] === socket.id) {
+      delete onlineUsers[userId];
+      io.emit("user status", { userId, status: "offline" });
+    }
   });
 });
 
@@ -101,7 +99,6 @@ app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
-
 
 app.get("/", (req, res) => {
   res.send("API is running successfully");

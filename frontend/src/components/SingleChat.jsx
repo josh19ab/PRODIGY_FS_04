@@ -26,6 +26,7 @@ import animationData from "../animations/typing.json";
 import { MdEmojiEmotions, MdSend } from "react-icons/md";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { IoMdAttach } from "react-icons/io";
 
 var socket;
 
@@ -38,6 +39,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  // const [mediaLoading, setMediaLoading] = useState(false);
 
   const toast = useToast();
 
@@ -148,15 +150,24 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     });
     socket.on("connect", () => {
       console.log("Connected to Socket.IO server");
+      socket.emit("setup", user.user);
+      socket.emit("user online", user.user._id);
     });
-    socket.emit("setup", user.user);
+
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
 
-    socket.on("connect_error", (err) => {
-      console.error("Socket.IO connect_error:", err);
+    socket.on("online users", (onlineUsers) => {
+      setOnlineUsers((prev) => {
+        const updatedUsers = { ...prev };
+        onlineUsers.forEach((userId) => {
+          updatedUsers[userId] = "online";
+        });
+        return updatedUsers;
+      });
     });
+
     socket.on("user status", (userStatus) => {
       setOnlineUsers((prev) => ({
         ...prev,
@@ -164,12 +175,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       }));
     });
 
-    socket.emit("user online", user.user._id);
+    socket.on("connect_error", (err) => {
+      console.error("Socket.IO connect_error:", err);
+    });
 
     return () => {
+      socket.emit("user offline", user.user._id);
       socket.disconnect();
     };
-  }, [setOnlineUsers]);
+  }, [setOnlineUsers, user.user._id]);
 
   useEffect(() => {
     fetchMessages();
@@ -317,10 +331,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   value={newMessage}
                   onChange={typingHandler}
                 />
-                <InputRightElement>
+                <InputRightElement mr={3} gap={3} w="55px">
+                  <IoMdAttach size="lg" />
                   <MdSend
                     onClick={handleSendMessage}
                     aria-label="Send message"
+                    size="lg"
                   />
                 </InputRightElement>
               </InputGroup>
@@ -342,9 +358,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           alignItems="center"
           justifyContent="center"
           h="100%"
-          
         >
-          <Text fontSize="3xl" pb={3} fontFamily="Work sans" fontWeight='md'>
+          <Text fontSize="3xl" pb={3} fontFamily="Work sans" fontWeight="md">
             Click on a user to start chatting
           </Text>
         </Box>
