@@ -3,6 +3,7 @@ import { Box } from "@chakra-ui/layout";
 import SingleChat from "./SingleChat";
 
 
+// eslint-disable-next-line react/prop-types
 const ChatBox = ({ fetchAgain, setFetchAgain }) => {
   const { selectedChat } = ChatState();
   return (

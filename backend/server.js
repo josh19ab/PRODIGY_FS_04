@@ -45,6 +45,7 @@ const io = new Server(httpServer, {
   transports: ["websocket", "polling"],
 });
 
+const onlineUsers = {}; 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
@@ -80,7 +81,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    // Handle user disconnection
     for (const userId in onlineUsers) {
       if (onlineUsers[userId] === socket.id) {
         delete onlineUsers[userId];

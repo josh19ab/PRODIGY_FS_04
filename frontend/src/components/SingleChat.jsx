@@ -9,6 +9,10 @@ import {
   Spinner,
   Text,
   useToast,
+  Badge,
+  InputGroup,
+  InputRightElement,
+  InputLeftElement,
 } from "@chakra-ui/react";
 import { FaArrowLeft } from "react-icons/fa";
 import getSender, { getSenderFull } from "../config/ChatLogics";
@@ -19,8 +23,11 @@ import SrollableChat from "./SrollableChat";
 import { io } from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
+import { MdEmojiEmotions, MdSend } from "react-icons/md";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
-var socket
+var socket;
 
 // eslint-disable-next-line react/prop-types
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -30,6 +37,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const toast = useToast();
 
@@ -43,8 +51,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const user = ChatState();
-  const { selectedChat, setSelectedChat, notification, setNotification } =
-    ChatState();
+  const {
+    selectedChat,
+    setSelectedChat,
+    notification,
+    setNotification,
+    setOnlineUsers,
+    onlineUsers,
+  } = ChatState();
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -81,36 +95,50 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
-      socket.emit("stop typing", selectedChat._id);
-      try {
-        const config = {
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Bearer ${user.user.token}`,
-          },
-        };
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/message`,
-          {
-            content: newMessage,
-            chatId: selectedChat,
-          },
-          config
-        );
-
-        socket.emit("new message", data);
-        setMessages([...messages, data]);
-      } catch (error) {
-        toast({
-          title: "Error Occurred!",
-          description: "Failed to send the Message",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom",
-        });
-      }
+      event.preventDefault();
+      await handleSendMessage();
     }
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
+
+    socket.emit("stop typing", selectedChat._id);
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${user.user.token}`,
+        },
+      };
+
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/message`,
+        {
+          content: newMessage,
+          chatId: selectedChat._id,
+        },
+        config
+      );
+
+      socket.emit("new message", data);
+      setMessages((prevMessages) => [...prevMessages, data]);
+      setNewMessage("");
+    } catch (error) {
+      toast({
+        title: "Error Occurred!",
+        description: "Failed to send the Message",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+
+  const addEmoji = (emoji) => {
+    setNewMessage((prev) => prev + emoji.native); // Append the selected emoji to the message
+    setShowEmojiPicker(false); // Hide the emoji picker after selecting
   };
 
   useEffect(() => {
@@ -125,15 +153,23 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
-    
+
     socket.on("connect_error", (err) => {
       console.error("Socket.IO connect_error:", err);
     });
+    socket.on("user status", (userStatus) => {
+      setOnlineUsers((prev) => ({
+        ...prev,
+        [userStatus.userId]: userStatus.status,
+      }));
+    });
+
+    socket.emit("user online", user.user._id);
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [setOnlineUsers]);
 
   useEffect(() => {
     fetchMessages();
@@ -141,35 +177,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("user status", (userStatus) => {
-      // Update your user presence state here
-      console.log(`${userStatus.userId} is now ${userStatus.status}`);
-    });
-
-    // Emit user online status when connecting
-    socket.emit("user online", user.user._id);
-  }, []);
-
-
-
-  useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
-      if (
-        !selectedChat || 
-        selectedChat._id !== newMessageReceived.chat._id
-      ) {
+      if (!selectedChat || selectedChat._id !== newMessageReceived.chat._id) {
         if (!notification.includes(newMessageReceived)) {
           setNotification([newMessageReceived, ...notification]);
           setFetchAgain(!fetchAgain);
         }
       } else {
-         setMessages([...messages, newMessageReceived]);
+        setMessages([...messages, newMessageReceived]);
       }
     });
     return () => {
       socket.off("message received");
     };
-  }); 
+  });
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
@@ -211,7 +232,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             />
             {!selectedChat.isGroupChat ? (
               <>
-                {getSender(user.user, selectedChat.users)}
+                <Box display="flex" alignItems="center">
+                  <Text fontWeight="bold" mr={2}>
+                    {getSender(user.user, selectedChat.users)}
+                  </Text>
+                  {onlineUsers[
+                    getSenderFull(user.user, selectedChat.users)._id
+                  ] === "online" ? (
+                    <Badge colorScheme="green" ml={2}>
+                      Online
+                    </Badge>
+                  ) : (
+                    <Badge colorScheme="red" ml={2}>
+                      Offline
+                    </Badge>
+                  )}
+                </Box>
                 <ProfileModal
                   user={getSenderFull(user.user, selectedChat.users)}
                 />
@@ -265,16 +301,36 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     style={{ marginBottom: 15, marginLeft: 0 }}
                   />
                 </div>
-              ) : (
-                <></>
+              ) : null}
+              <InputGroup>
+                <InputLeftElement>
+                  <MdEmojiEmotions
+                    onClick={() => setShowEmojiPicker((prev) => !prev)}
+                  />
+                </InputLeftElement>
+                <Input
+                  variant="filled"
+                  bg="#E0E0E0"
+                  placeholder="Enter a message.."
+                  value={newMessage}
+                  onChange={typingHandler}
+                />
+                <InputRightElement>
+                  <MdSend
+                    onClick={handleSendMessage}
+                    aria-label="Send message"
+                  />
+                </InputRightElement>
+              </InputGroup>
+              {showEmojiPicker && (
+                <Box position="absolute" zIndex="1" mt="2" bottom={12}>
+                  <Picker
+                    data={data}
+                    onEmojiSelect={addEmoji}
+                    previewPosition='none'
+                  />
+                </Box>
               )}
-              <Input
-                variant="filled"
-                bg="#E0E0E0"
-                placeholder="Enter a message.."
-                value={newMessage}
-                onChange={typingHandler}
-              />
             </FormControl>
           </Box>
         </>

@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
-import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Stack,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import ChatLoading from "./ChatLoading";
-import getSender from "../config/ChatLogics";
+import getSender  from "../config/ChatLogics";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 
 // eslint-disable-next-line react/prop-types
@@ -102,13 +109,15 @@ const MyChats = ({ fetchAgain }) => {
                 borderRadius="lg"
                 key={chat._id}
               >
-                <Text>
-                  {!chat || !chat.users || !loggedUser
-                    ? "Loading..." // or any fallback UI
-                    : !chat.isGroupChat
-                    ? getSender(loggedUser, chat.users)
-                    : chat.chatName}
-                </Text>
+                <Flex alignItems="center">
+                  <Text fontWeight="bold" mr={2}>
+                    {!chat || !chat.users || !loggedUser
+                      ? "Loading..." // or any fallback UI
+                      : !chat.isGroupChat
+                      ? getSender(loggedUser, chat.users)
+                      : chat.chatName}
+                  </Text>
+                </Flex>
                 {chat.latestMessage && (
                   <Text fontSize="xs">
                     <b>{chat.latestMessage.sender.name} : </b>
