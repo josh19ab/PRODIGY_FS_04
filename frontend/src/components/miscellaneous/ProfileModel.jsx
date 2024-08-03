@@ -56,8 +56,8 @@ const ProfileModel = ({ user, children }) => {
               Email: {user.email}
             </Text>
           </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
+          <ModalFooter >
+            <Button onClick={onClose} >Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

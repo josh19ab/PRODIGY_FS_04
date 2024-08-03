@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Message = require('../models/messageModel');
 const User = require("../models/userModel");
 const Chat = require("../models/chatModel");
+const cloudinary = require("../config/cloudinary");
 
 //@description     Fetch all messages
 //@route           get /api/Message/:chatId
@@ -21,19 +22,21 @@ const allMessages = asyncHandler(async (req, res) => {
 //@description     Create New Message
 //@route           POST /api/Message/
 const sendMessage = asyncHandler(async (req, res) => {
-  const { content, chatId } = req.body;
+  const { content, chatId, fileUrl } = req.body;
 
-  if (!content || !chatId) {
+  if (!chatId) {
     console.log("Invalid data passed into request");
     return res.sendStatus(400);
   }
-  var newMessage = {
+  const  newMessage = {
     sender: req.user._id,
-    content: content,
+    content: content || null,
     chat: chatId,
+    fileUrl: fileUrl || null,
   };
+
   try {
-    var message = await Message.create(newMessage);
+    let message = await Message.create(newMessage);
 
     message = await message.populate("sender", "name pic")
     message = await message.populate("chat")
@@ -51,4 +54,21 @@ const sendMessage = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { sendMessage, allMessages };
+//@description     Upload media file
+//@route           POST /api/message/upload
+const uploadMedia = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "auto",
+    });
+    // Return the secure URL of the uploaded file
+    res.status(200).json({ url: result.secure_url });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to upload media", error: error.message });
+  }
+});
+
+module.exports = { sendMessage, allMessages, uploadMedia };

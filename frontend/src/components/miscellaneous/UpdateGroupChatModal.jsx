@@ -15,13 +15,14 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaEye } from "react-icons/fa";
 import { ChatState } from "../../Context/ChatProvider";
 import UserBadgeItem from "../UserAvatar/UserBadgeItem";
 import UserListItem from "../UserAvatar/UserListItem";
-import axios from 'axios'
+import axios from "axios";
 
+// eslint-disable-next-line react/prop-types
 const UpdatGruoupChatModel = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [groupChatName, setGroupChatName] = useState();
@@ -161,16 +162,19 @@ const UpdatGruoupChatModel = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
   };
 
   const handleRemove = async (user1) => {
-     if (selectedChat.groupAdmin._id !== user._id && user1._id !== user._id) {
-       toast({
-         title: "Only admins can remove someone!",
-         status: "error",
-         duration: 5000,
-         isClosable: true,
-         position: "bottom",
-       });
-       return;
-     }
+    if (
+      selectedChat.groupAdmin._id !== user.user._id &&
+      user1._id !== user.user._id
+    ) {
+      toast({
+        title: "Only admins can remove someone!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
 
     try {
       setLoading(true);
@@ -190,7 +194,7 @@ const UpdatGruoupChatModel = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
 
       user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
       setFetchAgain(!fetchAgain);
-       fetchMessages();
+      fetchMessages();
       setLoading(false);
     } catch (error) {
       toast({

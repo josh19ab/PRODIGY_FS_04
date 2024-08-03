@@ -29,7 +29,6 @@ import ChatLoading from "../../components/ChatLoading";
 import UserListItem from "../../components/UserAvatar/UserListItem";
 import getSender from "../../config/ChatLogics";
 import NotificationButton from "../NotificationButton";
-// import { io } from "socket.io-client";
 
 
 const SideDrawer = () => {
@@ -47,16 +46,6 @@ const SideDrawer = () => {
 
   const navigate = useNavigate();
   const logoutHandler = () => {
-    // const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    //  if (userInfo) {
-    //    const socket = io(import.meta.env.VITE_API_URL, {
-    //      withCredentials: true,
-    //      transports: ["websocket", "polling"],
-    //    });
-
-    //    socket.emit("user offline", userInfo._id);
-    //    socket.disconnect();
-    //  }
     localStorage.removeItem("userInfo");
     navigate("/");
   };

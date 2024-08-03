@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
-import {
-  Box,
-  Button,
-  Flex,
-  Stack,
-  Text,
-  useToast,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { FaPlus } from "react-icons/fa";
 import ChatLoading from "./ChatLoading";
-import getSender  from "../config/ChatLogics";
+import getSender from "../config/ChatLogics";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 
 // eslint-disable-next-line react/prop-types
@@ -124,7 +117,9 @@ const MyChats = ({ fetchAgain }) => {
                 {chat.latestMessage && (
                   <Text fontSize="xs">
                     <b>{chat.latestMessage.sender.name} : </b>
-                    {chat.latestMessage.content.length > 50
+                    {chat.latestMessage.fileUrl
+                      ? "Media"
+                      : chat.latestMessage.content.length > 50
                       ? chat.latestMessage.content.substring(0, 51) + "..."
                       : chat.latestMessage.content}
                   </Text>

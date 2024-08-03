@@ -1,5 +1,5 @@
 import "./styles.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import {
   Box,
@@ -13,17 +13,19 @@ import {
   InputGroup,
   InputRightElement,
   InputLeftElement,
+  Skeleton,
+  Image,
 } from "@chakra-ui/react";
 import { FaArrowLeft } from "react-icons/fa";
 import getSender, { getSenderFull } from "../config/ChatLogics";
 import ProfileModal from "./miscellaneous/ProfileModel";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import axios from "axios";
-import SrollableChat from "./SrollableChat";
+import ScrollableChat from "./ScrollableChat";
 import { io } from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
-import { MdEmojiEmotions, MdSend } from "react-icons/md";
+import { MdCancel, MdEmojiEmotions, MdSend } from "react-icons/md";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { IoMdAttach } from "react-icons/io";
@@ -39,7 +41,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  // const [mediaLoading, setMediaLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const toast = useToast();
 
@@ -95,18 +99,69 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
+  const addEmoji = (emoji) => {
+    setNewMessage((prev) => prev + emoji.native);
+    setShowEmojiPicker(false);
+  };
+
+  const uploadMedia = async (file) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user.user.token}`,
+        },
+      };
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/message/upload`,
+        formData,
+        config
+      );
+
+      return data.url;
+    } catch (error) {
+      console.error("Error uploading media:", error);
+      throw new Error("Failed to upload media");
+    }
+  };
+
   const sendMessage = async (event) => {
-    if (event.key === "Enter" && newMessage) {
+    if (event.key === "Enter" && (newMessage || selectedFile)) {
       event.preventDefault();
       await handleSendMessage();
     }
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && !selectedFile) return;
 
     socket.emit("stop typing", selectedChat._id);
+
+    // Create a temporary message object for media
+    const tempMessage = {
+      _id: Date.now(), // Use a temporary ID
+      sender: { _id: user.user._id, name: user.user.name, pic: user.user.pic },
+      content: newMessage,
+      chat: selectedChat._id,
+      fileUrl: null, // No URL yet
+      isLoading: selectedFile ? true : false, // Set loading state only for media
+    };
+
+    // Update the messages state with the temporary message
+    setMessages((prevMessages) => [...prevMessages, tempMessage]);
+
     try {
+      let mediaUrl = null;
+
+      // If a file is selected, upload it first
+      if (selectedFile) {
+        mediaUrl = await uploadMedia(selectedFile);
+      }
+
       const config = {
         headers: {
           "Content-type": "application/json",
@@ -114,22 +169,35 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         },
       };
 
+      // Prepare the message data
+      const messageData = {
+        content: newMessage,
+        chatId: selectedChat._id,
+        fileUrl: mediaUrl,
+        isLoading: false, // Set loading state to false after sending
+      };
+
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/message`,
-        {
-          content: newMessage,
-          chatId: selectedChat._id,
-        },
+        messageData,
         config
       );
 
+      // Replace the temporary loading message with the actual message
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg._id === tempMessage._id ? { ...data, isLoading: false } : msg
+        )
+      );
+
       socket.emit("new message", data);
-      setMessages((prevMessages) => [...prevMessages, data]);
       setNewMessage("");
+      setSelectedFile(null); // Clear the selected file after sending
+      setImagePreview(null); // Clear the image preview after sending
     } catch (error) {
       toast({
         title: "Error Occurred!",
-        description: "Failed to send the Message",
+        description: "Failed to send the message",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -138,10 +206,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
-  const addEmoji = (emoji) => {
-    setNewMessage((prev) => prev + emoji.native); // Append the selected emoji to the message
-    setShowEmojiPicker(false); // Hide the emoji picker after selecting
+  const handleAttachClick = () => {
+    fileInputRef.current.click();
   };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+   const cancelImagePreview = () => {
+     setSelectedFile(null);
+     setImagePreview(null);
+   };
 
   useEffect(() => {
     socket = io(import.meta.env.VITE_API_URL, {
@@ -149,7 +229,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       transports: ["websocket", "polling"],
     });
     socket.on("connect", () => {
-      console.log("Connected to Socket.IO server");
       socket.emit("setup", user.user);
       socket.emit("user online", user.user._id);
     });
@@ -283,8 +362,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             justifyContent="flex-end"
             p={3}
             bg="transparent"
-            // backdropFilter="blur(10px)"
-            // boxShadow="lg"
             w="100%"
             h="100%"
             borderRadius="lg"
@@ -300,8 +377,43 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               />
             ) : (
               <div className="messages">
-                <SrollableChat messages={messages} />
+                <ScrollableChat messages={messages} />
               </div>
+            )}
+            {imagePreview && (
+              <Box
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="center"
+                position="relative"
+                _hover={{
+                  ".image-preview": {
+                    filter: "brightness(0.5)",
+                  },
+                }}
+              >
+                <Box display='flex' justifyContent='center' alignItems='center'>
+                  <Image
+                    src={imagePreview}
+                    alt="Selected Image Preview"
+                    borderRadius="md"
+                    objectFit="cover"
+                    maxHeight="100px"
+                    className="image-preview"
+                  />
+                  <IconButton
+                    icon={<MdCancel />}
+                    aria-label="Cancel Image"
+                    size="lg"
+                    position="absolute"
+                    colorScheme="transparent"
+                    _hover={{
+                      color: "red.500",
+                    }}
+                    onClick={cancelImagePreview}
+                  />
+                </Box>
+              </Box>
             )}
             <FormControl
               onKeyDown={sendMessage}
@@ -314,7 +426,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   <Lottie
                     options={defaultOptions}
                     width={70}
-                    style={{ marginBottom: 15, marginLeft: 0 }}
+                    height={40}
+                    style={{ marginLeft: "25px" }}
                   />
                 </div>
               ) : null}
@@ -332,11 +445,18 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   onChange={typingHandler}
                 />
                 <InputRightElement mr={3} gap={3} w="55px">
-                  <IoMdAttach size="lg" />
+                  <Input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                  />
+                  <IoMdAttach onClick={handleAttachClick} cursor="pointer" />
+
                   <MdSend
                     onClick={handleSendMessage}
                     aria-label="Send message"
-                    size="lg"
                   />
                 </InputRightElement>
               </InputGroup>

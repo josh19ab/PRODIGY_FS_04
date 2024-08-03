@@ -5,6 +5,8 @@ const colors = require("colors");
 const cors = require("cors");
 const { Server } = require("socket.io");
 const { createServer } = require("http");
+
+
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
@@ -16,6 +18,9 @@ connectDB();
 const app = express();
 const httpServer = createServer(app);
 app.use(express.json());
+
+app.use("/uploads", express.static("uploads"));
+
 
 const allowedOrigins = [
   "https://chat-app-jo-frontend.vercel.app",
