@@ -142,7 +142,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     socket.emit("stop typing", selectedChat._id);
 
-    // Create a temporary message object for media
     const tempMessage = {
       _id: Date.now(), // Use a temporary ID
       sender: { _id: user.user._id, name: user.user.name, pic: user.user.pic },
@@ -152,13 +151,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       isLoading: selectedFile ? true : false, // Set loading state only for media
     };
 
-    // Update the messages state with the temporary message
     setMessages((prevMessages) => [...prevMessages, tempMessage]);
 
     try {
       let mediaUrl = null;
 
-      // If a file is selected, upload it first
       if (selectedFile) {
         mediaUrl = await uploadMedia(selectedFile);
       }
@@ -169,13 +166,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           Authorization: `Bearer ${user.user.token}`,
         },
       };
-
-      // Prepare the message data
       const messageData = {
         content: newMessage,
         chatId: selectedChat._id,
         fileUrl: mediaUrl,
-        isLoading: false, // Set loading state to false after sending
+        isLoading: false, 
       };
 
       const { data } = await axios.post(
@@ -184,7 +179,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         config
       );
 
-      // Replace the temporary loading message with the actual message
       setMessages((prevMessages) =>
         prevMessages.map((msg) =>
           msg._id === tempMessage._id ? { ...data, isLoading: false } : msg
@@ -286,18 +280,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   useEffect(() => {
     socket.on("message received", async (newMessageReceived) => {
       if (!selectedChat || selectedChat._id !== newMessageReceived.chat._id) {
-        // Check if the notification already exists
         if (
           !notifications.some((notif) => notif._id === newMessageReceived._id)
         ) {
-          // Update notifications state
           setNotifications((prevNotifications) => [
             newMessageReceived,
             ...prevNotifications,
           ]);
           setFetchAgain((prev) => !prev);
-
-          // Create a notification on the server
           try {
             const config = {
               headers: {
@@ -320,7 +310,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           }
         }
       } else {
-        // If the user is in the selected chat, update the messages
         setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
     });
