@@ -26,7 +26,6 @@ const ChatPage = () => {
         )}
         {user && (
           <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
-
         )}
       </Box>
     </div>

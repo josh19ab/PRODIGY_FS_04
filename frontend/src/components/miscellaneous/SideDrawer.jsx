@@ -27,9 +27,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ChatLoading from "../../components/ChatLoading";
 import UserListItem from "../../components/UserAvatar/UserListItem";
-import getSender from "../../config/ChatLogics";
+// import getSender from "../../config/ChatLogics";
 import NotificationButton from "../NotificationButton";
-
+import NotificationMenu from "../NotificationMenu";
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
@@ -39,8 +39,7 @@ const SideDrawer = () => {
 
   const Toast = useToast();
 
-  const { setSelectedChat, chats, setChats, notification, setNotification } =
-    ChatState();
+  const { setSelectedChat, chats, setChats, notifications } = ChatState();
 
   const user = ChatState();
 
@@ -135,7 +134,7 @@ const SideDrawer = () => {
         margin={2}
         zIndex={10}
         position="relative"
-        >
+      >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button variant="ghost" onClick={onOpen}>
             <FaSearch />
@@ -151,24 +150,11 @@ const SideDrawer = () => {
           <Menu>
             <MenuButton p={2}>
               <Box>
-                <NotificationButton notificationCount={notification.length} />
+                <NotificationButton notificationCount={notifications.length} />
               </Box>
             </MenuButton>
             <MenuList pl={2} mt={-4} mr={5}>
-              {!notification.length && "No new messages"}
-              {notification.map((notif) => (
-                <MenuItem
-                  key={notif._id}
-                  onClick={() => {
-                    setSelectedChat(notif.chat);
-                    setNotification(notification.filter((n) => n !== notif));
-                  }}
-                >
-                  {notif.chat.isGroupChat
-                    ? `New Message ${notif.chat.chatName}`
-                    : `New Message from ${getSender(user, notif.chat.users)}`}
-                </MenuItem>
-              ))}
+               <NotificationMenu />
             </MenuList>
           </Menu>
           <Menu>

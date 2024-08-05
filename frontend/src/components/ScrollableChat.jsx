@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Image, Spinner, Text, Tooltip } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Image,  Text, Tooltip } from "@chakra-ui/react";
 import ScrollableFeed from "react-scrollable-feed";
 import { ChatState } from "../Context/ChatProvider";
 import animationData from "../animations/loading.json";

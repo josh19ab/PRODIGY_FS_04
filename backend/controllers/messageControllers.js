@@ -71,4 +71,20 @@ const uploadMedia = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { sendMessage, allMessages, uploadMedia };
+//@description     Delete all messages in a chat
+//@route           DELETE /api/message/:chatId/messages
+const deleteAllMessages = asyncHandler(async (req, res) => {
+  const { chatId } = req.params;
+
+  try {
+    await Message.deleteMany({ chat: chatId });
+    await Chat.findByIdAndUpdate(chatId, { latestMessage: null });
+
+    res.status(200).json({ message: "All messages deleted successfully" });
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+});
+
+module.exports = { sendMessage, allMessages, uploadMedia, deleteAllMessages };

@@ -13,10 +13,10 @@ import {
   InputGroup,
   InputRightElement,
   InputLeftElement,
-  Skeleton,
   Image,
+  Button,
 } from "@chakra-ui/react";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaTrashAlt } from "react-icons/fa";
 import getSender, { getSenderFull } from "../config/ChatLogics";
 import ProfileModal from "./miscellaneous/ProfileModel";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
@@ -60,8 +60,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const {
     selectedChat,
     setSelectedChat,
-    notification,
-    setNotification,
+    notifications,
+    setNotifications,
     setOnlineUsers,
     onlineUsers,
   } = ChatState();
@@ -218,10 +218,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
-   const cancelImagePreview = () => {
-     setSelectedFile(null);
-     setImagePreview(null);
-   };
+  const cancelImagePreview = () => {
+    setSelectedFile(null);
+    setImagePreview(null);
+  };
 
   useEffect(() => {
     socket = io(import.meta.env.VITE_API_URL, {
@@ -270,20 +270,65 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("message received", (newMessageReceived) => {
+    socket.on("notification received", (notification) => {
+      setNotifications((prevNotifications) => [
+        notification,
+        ...prevNotifications,
+      ]);
+    });
+
+    return () => {
+      socket.off("notification received");
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    socket.on("message received", async (newMessageReceived) => {
       if (!selectedChat || selectedChat._id !== newMessageReceived.chat._id) {
-        if (!notification.includes(newMessageReceived)) {
-          setNotification([newMessageReceived, ...notification]);
-          setFetchAgain(!fetchAgain);
+        // Check if the notification already exists
+        if (
+          !notifications.some((notif) => notif._id === newMessageReceived._id)
+        ) {
+          // Update notifications state
+          setNotifications((prevNotifications) => [
+            newMessageReceived,
+            ...prevNotifications,
+          ]);
+          setFetchAgain((prev) => !prev);
+
+          // Create a notification on the server
+          try {
+            const config = {
+              headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${user.user.token}`,
+              },
+            };
+
+            await axios.post(
+              `${import.meta.env.VITE_API_URL}/api/notifications`,
+              {
+                userId: user.user, // Ensure this is correct
+                chatId: newMessageReceived.chat._id,
+                message: `New message from ${newMessageReceived.sender.name}`,
+              },
+              config
+            );
+          } catch (error) {
+            console.error("Error creating notification:", error);
+          }
         }
       } else {
-        setMessages([...messages, newMessageReceived]);
+        // If the user is in the selected chat, update the messages
+        setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
     });
+
     return () => {
       socket.off("message received");
     };
-  });
+  }, []);
+
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
@@ -302,6 +347,41 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setTyping(false);
       }
     }, timerLength);
+  };
+
+  const handleClearChat = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to clear the chat? This action cannot be undone."
+      )
+    ) {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${user.user.token}`,
+          },
+        };
+
+        await axios.delete(
+          `${import.meta.env.VITE_API_URL}/api/message/${
+            selectedChat._id
+          }/messages`,
+          config
+        );
+
+        setMessages([]); // Clear messages from state
+      } catch (error) {
+        console.error("Failed to clear chat:", error);
+        toast({
+          title: "Error Occurred!",
+          description: "Failed to clear the chat",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      }
+    }
   };
 
   return (
@@ -325,21 +405,43 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             />
             {!selectedChat.isGroupChat ? (
               <>
-                <Box display="flex" alignItems="center">
-                  <Text fontWeight="bold" mr={2}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  w="full"
+                >
+                  <Text fontWeight="bold" mr={2} ml={2}>
                     {getSender(user.user, selectedChat.users)}
                   </Text>
-                  {onlineUsers[
-                    getSenderFull(user.user, selectedChat.users)._id
-                  ] === "online" ? (
-                    <Badge colorScheme="green" ml={2}>
-                      Online
-                    </Badge>
-                  ) : (
-                    <Badge colorScheme="red" ml={2}>
-                      Offline
-                    </Badge>
-                  )}
+
+                  <Badge
+                    colorScheme={
+                      onlineUsers[
+                        getSenderFull(user.user, selectedChat.users)._id
+                      ] === "online"
+                        ? "green"
+                        : "red"
+                    }
+                    ml={2}
+                  >
+                    {onlineUsers[
+                      getSenderFull(user.user, selectedChat.users)._id
+                    ] === "online"
+                      ? "Online"
+                      : "Offline"}
+                  </Badge>
+
+                  <Button
+                    rightIcon={<FaTrashAlt />}
+                    onClick={handleClearChat}
+                    size="xs"
+                    variant="ghost"
+                    colorScheme="red"
+                    mr={2}
+                  >
+                    Clear
+                  </Button>
                 </Box>
                 <ProfileModal
                   user={getSenderFull(user.user, selectedChat.users)}
@@ -392,7 +494,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   },
                 }}
               >
-                <Box display='flex' justifyContent='center' alignItems='center'>
+                <Box display="flex" justifyContent="center" alignItems="center">
                   <Image
                     src={imagePreview}
                     alt="Selected Image Preview"
@@ -444,7 +546,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   value={newMessage}
                   onChange={typingHandler}
                 />
-                <InputRightElement mr={3} gap={3} w="55px">
+                <InputRightElement mr={2} gap={3} w="55px">
                   <Input
                     type="file"
                     ref={fileInputRef}
@@ -452,11 +554,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     onChange={handleFileChange}
                     accept="image/*"
                   />
-                  <IoMdAttach onClick={handleAttachClick} cursor="pointer" />
+                  <IoMdAttach
+                    onClick={handleAttachClick}
+                    cursor="pointer"
+                    size="sm"
+                  />
 
                   <MdSend
                     onClick={handleSendMessage}
                     aria-label="Send message"
+                    size="md"
                   />
                 </InputRightElement>
               </InputGroup>

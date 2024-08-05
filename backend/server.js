@@ -27,6 +27,7 @@ const allowedOrigins = [
   "http://localhost:5000",
 ];
 
+//cors middleware
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -51,7 +52,6 @@ const io = new Server(httpServer, {
 });
 
 const onlineUsers = {};
-// Socket.IO connection handling
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
 
@@ -106,11 +106,16 @@ app.use("/api/message", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 app.get("/", (req, res) => {
-  res.send("API is running successfully");
+  res.send("backend is working ");
 });
 
 app.use((req, res) => {
   res.status(404).send("Not Found");
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
 });
 
 const PORT = process.env.PORT || 3000;

@@ -23,8 +23,8 @@ const NotificationButton = ({ notificationCount }) => {
               position="absolute"
               top="0"
               right="0"
-              initial={{ scale: 0 }} // Start from scale 0
-              animate={{ scale: 1 }} // Animate to scale 1
+              initial={{ scale: 0 }} 
+              animate={{ scale: 1 }} 
               transition={{ duration: 0.2 }}
             >
               {notificationCount}

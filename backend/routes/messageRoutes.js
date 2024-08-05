@@ -1,7 +1,7 @@
 const express = require('express')
 
 const { protect } = require('../middleware/authMiddleware')
-const { sendMessage } = require('../controllers/messageControllers')
+const { sendMessage, deleteAllMessages } = require('../controllers/messageControllers')
 const { allMessages } = require("../controllers/messageControllers");
 const { uploadMedia } = require("../controllers/messageControllers");
 
@@ -24,5 +24,6 @@ const upload = multer({ storage });
 router.route('/').post(protect,sendMessage)
 router.route('/:chatId').get(protect,allMessages)
 router.route("/upload").post(protect, upload.single("file"), uploadMedia);
+router.route("/:chatId/messages").delete(protect, deleteAllMessages);
 
 module.exports = router
