@@ -29,6 +29,7 @@ import { MdCancel, MdEmojiEmotions, MdSend } from "react-icons/md";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { IoMdAttach } from "react-icons/io";
+import DefaultPage from "./DefaultPage";
 
 var socket;
 
@@ -580,16 +581,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Box>
         </>
       ) : (
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          h="100%"
-        >
-          <Text fontSize="3xl" pb={3} fontFamily="Work sans" fontWeight="md">
-            Click on a user to start chatting
-          </Text>
-        </Box>
+        <DefaultPage />
       )}
     </>
   );
