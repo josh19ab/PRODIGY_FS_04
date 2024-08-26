@@ -60,8 +60,32 @@ const deleteUserNotifications = asyncHandler(async (req, res) => {
   }
 });
 
+
+//@description     delete all notifications for the authenticated user
+//@route           DELETE /api/notifications
+const deleteAllUserNotifications = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.user;
+    const result = await Notification.deleteMany({ user: userId });
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "No notifications found for this user" });
+    }
+
+    res.status(200).json({
+      message: "All notifications deleted successfully",
+      deletedCount: result.deletedCount, 
+    });
+  } catch (error) {
+    console.error("Error deleting notifications:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = {
   createNotification,
   getUserNotification,
   deleteUserNotifications,
+  deleteAllUserNotifications,
 };

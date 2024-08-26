@@ -27,11 +27,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ChatLoading from "../../components/ChatLoading";
 import UserListItem from "../../components/UserAvatar/UserListItem";
-// import getSender from "../../config/ChatLogics";
 import NotificationButton from "../NotificationButton";
 import NotificationMenu from "../NotificationMenu";
 
-const SideDrawer = () => {
+// eslint-disable-next-line react/prop-types
+const SideDrawer = ({ fetchAgain }) => {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -154,7 +154,7 @@ const SideDrawer = () => {
               </Box>
             </MenuButton>
             <MenuList pl={2} mt={-4} mr={5}>
-               <NotificationMenu />
+              <NotificationMenu fetchAgain={fetchAgain} />
             </MenuList>
           </Menu>
           <Menu>

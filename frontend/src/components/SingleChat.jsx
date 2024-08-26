@@ -170,7 +170,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         content: newMessage,
         chatId: selectedChat._id,
         fileUrl: mediaUrl,
-        isLoading: false, 
+        isLoading: false,
       };
 
       const { data } = await axios.post(
@@ -187,8 +187,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
       socket.emit("new message", data);
       setNewMessage("");
-      setSelectedFile(null); // Clear the selected file after sending
-      setImagePreview(null); // Clear the image preview after sending
+      setSelectedFile(null);
+      setImagePreview(null);
     } catch (error) {
       toast({
         title: "Error Occurred!",
@@ -265,20 +265,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("notification received", (notification) => {
-      setNotifications((prevNotifications) => [
-        notification,
-        ...prevNotifications,
-      ]);
-    });
-
-    return () => {
-      socket.off("notification received");
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    socket.on("message received", async (newMessageReceived) => {
+    const handleMessageReceived = async (newMessageReceived) => {
       if (!selectedChat || selectedChat._id !== newMessageReceived.chat._id) {
         if (
           !notifications.some((notif) => notif._id === newMessageReceived._id)
@@ -287,7 +274,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             newMessageReceived,
             ...prevNotifications,
           ]);
-          setFetchAgain((prev) => !prev);
+          setFetchAgain((prev) => !prev); 
+
           try {
             const config = {
               headers: {
@@ -295,11 +283,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 Authorization: `Bearer ${user.user.token}`,
               },
             };
-
             await axios.post(
               `${import.meta.env.VITE_API_URL}/api/notifications`,
               {
-                userId: user.user, // Ensure this is correct
+                userId: user.user._id,
                 chatId: newMessageReceived.chat._id,
                 message: `New message from ${newMessageReceived.sender.name}`,
               },
@@ -312,13 +299,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       } else {
         setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
-    });
-
-    return () => {
-      socket.off("message received");
     };
-  }, []);
-
+    socket.on("message received", handleMessageReceived);
+    return () => {
+      socket.off("message received", handleMessageReceived);
+    };
+  }, [selectedChat, user.user.token]); 
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
